@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Null Linux — A simple Buildroot distribution</title>
+<meta name="description" content="Null Linux is a simple, from-scratch Linux distribution built on Buildroot and BusyBox, with install tooling and Bit Studio, a small built-in code editor. Download the ISO and follow the USB install guide.">
+<link rel="canonical" href="https://nulllinux.abrdns.com/">
+
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Null Linux — A simple Buildroot distribution">
+<meta property="og:description" content="A simple, from-scratch Linux distribution built on Buildroot and BusyBox, with install tooling and Bit Studio, a small built-in code editor.">
+<meta property="og:url" content="https://nulllinux.abrdns.com/">
+<meta property="og:image" content="https://nulllinux.abrdns.com/favicon-180.png">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Null Linux — A simple Buildroot distribution">
+<meta name="twitter:description" content="A simple, from-scratch Linux distribution built on Buildroot and BusyBox, with install tooling and Bit Studio, a small built-in code editor.">
+<meta name="twitter:image" content="https://nulllinux.abrdns.com/favicon-180.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Null Linux",
+  "applicationCategory": "OperatingSystem",
+  "operatingSystem": "Linux",
+  "softwareVersion": "0626 Dyson T (BETA)",
+  "url": "https://nulllinux.abrdns.com/",
+  "downloadUrl": "https://nulllinux.abrdns.com/Null-Linux-dyson0626T.iso",
+  "description": "A simple, from-scratch Linux distribution built on Buildroot and BusyBox, with install tooling and Bit Studio, a small built-in code editor."
+}
+</script>
+<style>
+  :root{
+    --bg:        #000000;
+    --bg-alt:    #0c0c0c;
+    --fg:        #ffffff;
+    --fg-dim:    #8a8a8a;
+    --line:      #ffffff;
+    --line-dim:  #333333;
+    --font-mono: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-serif: Georgia, 'Times New Roman', Times, serif;
+    --maxw: 760px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ background:var(--bg); }
+
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--font-serif);
+    font-size:17px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{ color:var(--fg); text-decoration:underline; text-underline-offset:3px; }
+  a:hover{ background:var(--fg); color:var(--bg); text-decoration:none; }
+
+  ::selection{ background:var(--fg); color:var(--bg); }
+
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    padding:16px 0;
+  }
+  .topbar .wrap{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .brand{
+    font-family:var(--font-mono);
+    font-weight:700;
+    letter-spacing:2px;
+    font-size:14px;
+    text-transform:uppercase;
+  }
+  .brand a{ text-decoration:none; }
+  .brand a:hover{ background:none; color:var(--fg); }
+  .navlinks{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .navlinks a{ margin-left:14px; }
+  .navlinks span{ color:var(--fg-dim); }
+
+  /* ---------- hero / terminal ---------- */
+  .hero{ padding:56px 0 40px; }
+
+  .term{
+    border:3px double var(--line);
+    background:var(--bg-alt);
+    padding:0;
+  }
+  .term-bar{
+    border-bottom:1px solid var(--line);
+    padding:8px 14px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--fg-dim);
+    display:flex;
+    justify-content:space-between;
+  }
+  .term-body{
+    padding:26px 22px 30px;
+    font-family:var(--font-mono);
+  }
+
+  .ascii{
+    font-family:var(--font-mono);
+    font-size:12px;
+    line-height:1.25;
+    white-space:pre;
+    overflow-x:auto;
+    margin-bottom:20px;
+  }
+
+  .type-line{
+    overflow:hidden;
+    white-space:nowrap;
+    border-right:2px solid var(--fg);
+    width:0;
+    animation: typing 1.8s steps(38,end) 0.4s forwards,
+               caret 0.8s step-end infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .type-line{ width:auto; animation:none; border-right:none; }
+  }
+  @keyframes typing{ to{ width:38ch; } }
+  @keyframes caret{ 50%{ border-color:transparent; } }
+
+  .tagline{
+    font-family:var(--font-serif);
+    font-size:19px;
+    line-height:1.6;
+    margin:22px 0 20px;
+    max-width:52ch;
+  }
+
+  .badge{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    background:var(--fg);
+    color:var(--bg);
+    padding:5px 10px;
+    margin-bottom:22px;
+  }
+
+  .cta{
+    font-family:var(--font-mono);
+    font-size:13px;
+  }
+  .cta a{ text-decoration:underline; }
+
+  /* ---------- download ---------- */
+  .dl-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-top:24px;
+  }
+  .dl-btn{
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    background:var(--fg);
+    color:var(--bg);
+    border:1px solid var(--fg);
+    padding:12px 22px;
+    text-decoration:none;
+    display:inline-block;
+  }
+  .dl-btn:hover{
+    background:var(--bg);
+    color:var(--fg);
+  }
+  .dl-meta{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--fg-dim);
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .dl-serial{
+    border:1px solid var(--line-dim);
+    padding:4px 9px;
+  }
+  .dl-serial b{ color:var(--fg); font-weight:700; }
+
+  /* ---------- section headers ---------- */
+  .rule{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:0;
+  }
+  section{ padding:44px 0; }
+
+  .label{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--fg-dim);
+    margin-bottom:22px;
+  }
+  .label::before{ content:"[ "; }
+  .label::after{ content:" ]"; }
+
+  h2{
+    font-family:var(--font-mono);
+    font-size:22px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+
+  p{ margin-bottom:14px; max-width:64ch; }
+  p:last-child{ margin-bottom:0; }
+
+  /* ---------- fact list ---------- */
+  .facts{
+    margin-top:24px;
+    border-top:1px solid var(--line-dim);
+  }
+  .fact{
+    display:flex;
+    gap:24px;
+    padding:11px 0;
+    border-bottom:1px solid var(--line-dim);
+    font-family:var(--font-mono);
+    font-size:13px;
+  }
+  .fact dt{
+    flex:0 0 150px;
+    color:var(--fg-dim);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+  .fact dd{ flex:1; }
+
+  /* ---------- tools listing ---------- */
+  .listing{
+    font-family:var(--font-mono);
+    font-size:13px;
+    border:1px solid var(--line-dim);
+    overflow-x:auto;
+  }
+  .listing .lrow{
+    display:flex;
+    gap:18px;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line-dim);
+    white-space:nowrap;
+  }
+  .listing .lrow:last-child{ border-bottom:none; }
+  .listing .lrow.head{
+    color:var(--fg-dim);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:11px;
+  }
+  .lperm{ flex:0 0 110px; color:var(--fg-dim); }
+  .lname{ flex:0 0 130px; font-weight:700; }
+  .ldesc{ flex:1; white-space:normal; color:var(--fg); }
+  .listing .lrow.head .ldesc{ color:var(--fg-dim); }
+
+  /* ---------- install steps ---------- */
+  .steps{ list-style:none; counter-reset:step; margin-top:22px; }
+  .step{
+    counter-increment:step;
+    display:flex;
+    gap:18px;
+    padding:16px 0;
+    border-bottom:1px solid var(--line-dim);
+  }
+  .step:first-child{ border-top:1px solid var(--line-dim); }
+  .step::before{
+    content:counter(step);
+    font-family:var(--font-mono);
+    font-size:13px;
+    flex:0 0 26px;
+    height:26px;
+    border:1px solid var(--fg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .step-body p{ margin-bottom:8px; }
+  .cmd{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:13px;
+    background:var(--bg-alt);
+    border:1px solid var(--line-dim);
+    padding:6px 10px;
+    margin-top:2px;
+  }
+  .checksum{
+    display:block;
+    overflow-x:auto;
+    font-family:var(--font-mono);
+    font-size:12px;
+    background:var(--bg-alt);
+    border:1px solid var(--line-dim);
+    padding:8px 10px;
+    margin-top:4px;
+    word-break:break-all;
+  }
+  .cmd::before{ content:"$ "; color:var(--fg-dim); }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:26px 0 44px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--fg-dim);
+    letter-spacing:0.5px;
+  }
+  .blink{
+    display:inline-block;
+    animation:caret 1s step-end infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .blink{ animation:none; } }
+
+  @media (max-width:600px){
+    body{ font-size:16px; }
+    .fact{ flex-direction:column; gap:4px; }
+    .fact dt{ flex:none; }
+    .listing .lrow{ flex-wrap:wrap; white-space:normal; }
+    .lperm{ display:none; }
+    h2{ font-size:19px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand"><a href="#top"><img src="favicon.svg" alt="" width="16" height="16" style="vertical-align:-3px; margin-right:8px;">Null Linux</a></div>
+      <nav class="navlinks">
+        <a href="#about">About</a><span> /</span>
+        <a href="#tools">Tools</a><span> /</span>
+        <a href="#install">Install</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="wrap" id="top">
+
+    <section class="hero">
+      <div class="term">
+        <div class="term-bar">
+          <span>/dev/tty1</span>
+          <span>null-linux</span>
+        </div>
+        <div class="term-body">
+          <div class="ascii">
+ _   _       _ _   _     _
+| \ | |_   _| | | | |   (_)_ __  _   ___  __
+|  \| | | | | | | | |   | | '_ \| | | \ \/ /
+| |\  | |_| | | | | |___| | | | | |_| |>  &lt;
+|_| \_|\__,_|_|_| |_____|_|_| |_|\__,_/_/\_\
+          </div>
+          <div class="type-line">root@null-linux:~# whoami</div>
+          <p class="tagline">A simple Buildroot-based Linux distribution — install tooling, a lightweight editor, and not much else yet. Built by one person, one tool at a time.</p>
+          <div class="badge">v0626 · Dyson T · Beta</div>
+
+          <div class="dl-row">
+            <a class="dl-btn" href="Null-Linux-dyson0626T.iso" download>Download ISO</a>
+            <div class="dl-meta">
+              <span>Null-Linux-dyson0626T.iso</span>
+              <span>59 MB</span>
+              <span class="dl-serial">S/N&nbsp;<b>fb0626</b></span>
+            </div>
+          </div>
+          <div class="dl-meta" style="margin-top:8px;">
+            <span>SHA256:</span>
+          </div>
+          <div class="checksum">795c991a9fb2ca2b32c104050a9d320aa5dabfb61c8d650978b58eeaff027fd0</div>
+
+          <div class="cta" style="margin-top:20px;">&gt; <a href="#install">jump to install</a></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section id="about">
+      <div class="label">About</div>
+      <h2>Small, on purpose</h2>
+      <p>Null Linux is a from-scratch distribution built on Buildroot with a BusyBox userland. There is no desktop environment to strip out and no upstream distro underneath it — every binary that ships is there because it was put there on purpose.</p>
+      <p>Right now it's genuinely simple: a set of install tools to get the system onto a disk, and Bit Studio, a small text editor for writing code directly on the system. It's a solo project, actively developed, currently in beta — more tools land as they're built, not before.</p>
+
+      <dl class="facts">
+        <div class="fact"><dt>Base system</dt><dd>Buildroot + BusyBox</dd></div>
+        <div class="fact"><dt>Kernel</dt><dd>Linux 6.18.x</dd></div>
+        <div class="fact"><dt>Architecture</dt><dd>x86_64</dd></div>
+        <div class="fact"><dt>Init</dt><dd>BusyBox init</dd></div>
+        <div class="fact"><dt>Status</dt><dd>Beta — actively developed</dd></div>
+      </dl>
+    </section>
+
+    <hr class="rule">
+
+    <section id="tools">
+      <div class="label">Tools</div>
+      <h2>usr/bin/</h2>
+      <p>A handful of purpose-built commands ship with the system, written for the Buildroot/BusyBox environment specifically — no external dependencies, nothing assumed to already be installed.</p>
+
+      <div class="listing" style="margin-top:22px;">
+        <div class="lrow head">
+          <span class="lperm">permissions</span>
+          <span class="lname">name</span>
+          <span class="ldesc">description</span>
+        </div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">nullinstaller</span><span class="ldesc">guided installer — pick a disk, install the system</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">null-disk</span><span class="ldesc">disk utility for the installer toolchain</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">null-fmt</span><span class="ldesc">filesystem formatting tool</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">null-deploy</span><span class="ldesc">deploys the system image to disk</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">null-boot-setup</span><span class="ldesc">installs and configures the bootloader</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">bit-studio</span><span class="ldesc">small code editor — nano engine, dialog-based UI</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">sysinfo</span><span class="ldesc">kernel, uptime, CPU, memory and disk at a glance</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">nusr</span><span class="ldesc">mounts /proc, /sys, /dev and /run</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">nunet</span><span class="ldesc">brings up the network over DHCP</span></div>
+        <div class="lrow"><span class="lperm">-rwxr-xr-x</span><span class="lname">system</span><span class="ldesc">single entry point for the commands above</span></div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section id="install">
+      <div class="label">Install</div>
+      <h2>From a USB drive</h2>
+      <p>Boot the target machine from the Null Linux USB installer, then follow these steps at the prompt.</p>
+
+      <ol class="steps">
+        <li class="step">
+          <div class="step-body">
+            <p>Start the guided installer.</p>
+            <span class="cmd">nullinstaller</span>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <p>A list of available disks appears. Choose the one to install to, then follow the on-screen steps.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <p>When it finishes, reboot into the newly installed system.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <p>Mount the system's virtual filesystems.</p>
+            <span class="cmd">mount</span>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-body">
+            <p>Bring the network up.</p>
+            <span class="cmd">nunet</span>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Null Linux — built with Buildroot. Beta software, rough edges expected.<span class="blink">_</span>
+    </div>
+  </footer>
+
+</body>
+</html>
